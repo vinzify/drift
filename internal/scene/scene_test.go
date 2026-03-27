@@ -27,6 +27,9 @@ func TestByName(t *testing.T) {
 	if s := ByName("does-not-exist"); s != nil {
 		t.Errorf("ByName(unknown) should return nil, got %v", s)
 	}
+	if s := ByName("orrery"); s == nil {
+		t.Fatal("ByName(orrery) returned nil")
+	}
 }
 
 func TestLerp(t *testing.T) {

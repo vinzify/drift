@@ -29,7 +29,7 @@ Every OS has a screensaver. The terminal had nothing — until now.
 
 ## Scenes
 
-drift ships eight animations. They cycle automatically or you can lock to one.
+drift ships nine animations. They cycle automatically or you can lock to one.
 
 <table>
 <tr>
@@ -97,6 +97,8 @@ drift ships eight animations. They cycle automatically or you can lock to one.
 </td>
 </tr>
 </table>
+
+**orrery** — a stylized solar system with a fixed sun, coherent elliptical orbits, and faint braille orbital arcs
 
 ## Themes
 
@@ -262,6 +264,10 @@ friction = 0.98
 layers    = 3
 amplitude = 0.70
 speed     = 1.0
+
+[scene.orrery]
+bodies      = 8
+trail_decay = 2.4
 
 [scene.pipes]
 heads         = 6
