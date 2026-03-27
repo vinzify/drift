@@ -64,7 +64,7 @@ func (o *Orrery) clearScratch() {
 
 func (o *Orrery) drawStars() {
 	for _, star := range o.stars {
-		brightness := 0.16
+		var brightness float64
 		if star.static {
 			brightness = 0.24
 		} else {
