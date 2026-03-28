@@ -38,85 +38,7 @@ func (o *Orrery) Draw(screen tcell.Screen) {
 			}
 		}
 	}
-}
 
-func (o *Orrery) allocBuffers() {
-	o.trail = make([][]float64, o.pw)
-	o.pixels = make([][]float64, o.pw)
-	o.trailOwner = make([][]uint8, o.pw)
-	o.pixelOwner = make([][]uint8, o.pw)
-	for x := 0; x < o.pw; x++ {
-		o.trail[x] = make([]float64, o.ph)
-		o.pixels[x] = make([]float64, o.ph)
-		o.trailOwner[x] = make([]uint8, o.ph)
-		o.pixelOwner[x] = make([]uint8, o.ph)
-	}
-}
-
-func (o *Orrery) clearScratch() {
-	for x := range o.pixels {
-		for y := range o.pixels[x] {
-			o.pixels[x][y] = 0
-			o.pixelOwner[x][y] = 0
-		}
-	}
-}
-
-func (o *Orrery) drawStars() {
-	for _, star := range o.stars {
-		var brightness float64
-		if star.static {
-			brightness = 0.24
-		} else {
-			brightness = 0.18 + 0.08*math.Sin(o.time*0.45+star.phase)
-		}
-		o.stampDisc(star.x, star.y, 0.35, star.paletteIdx, brightness, false)
-	}
-}
-
-func (o *Orrery) drawOrbits() {
-	for _, radius := range o.orbitRadii {
-		samples := int(clamp64(radius*4.2, 80, 280))
-		for step := 0; step < samples; step++ {
-			angle := (float64(step) / float64(samples)) * 2 * math.Pi
-			x, y := o.pointOnOrbit(radius, angle)
-			o.stampPixel(int(x+0.5), int(y+0.5), orreryOrbitOwner, 0.16)
-		}
-	}
-}
-
-func (o *Orrery) stampTrail(body *orreryBody) {
-	o.stampDisc(body.x, body.y, clamp64(body.size*0.55, 0.5, 1.3), uint8(body.paletteIdx), 0.14, true)
-}
-
-func (o *Orrery) drawSun() {
-	o.stampDisc(o.centerX, o.centerY, 4.6, orrerySunOwner, 1.0, false)
-	o.stampDisc(o.centerX, o.centerY, 7.2, orrerySunOwner, 0.32, false)
-}
-
-func (o *Orrery) drawBody(body orreryBody) {
-	o.stampDisc(body.x, body.y, body.size, uint8(body.paletteIdx), 0.95, false)
-	if body.hasRing {
-		o.stampRing(body.x, body.y, body.size+1.4, body.size+2.4, uint8(body.paletteIdx), 0.42)
-	}
-}
-
-func (o *Orrery) drawAsteroid() {
-	if !o.asteroid.active {
-		return
-	}
-	o.stampDisc(o.asteroid.x, o.asteroid.y, o.asteroid.size, orreryAsteroidOwner, 0.88, false)
-}
-
-func (o *Orrery) drawUFO() {
-	if !o.ufo.active {
-		return
-	}
-
-	o.stampEllipse(o.ufo.x, o.ufo.y+0.2, 4.2, 1.4, orreryUFOOwner, 0.72, false)
-	o.stampEllipseRing(o.ufo.x, o.ufo.y+0.15, 4.0, 1.2, 4.8, 1.7, orreryUFOOwner, 0.28)
-	o.stampEllipse(o.ufo.x, o.ufo.y-1.3, 1.7, 0.9, orreryUFODomeOwner, 0.64, false)
-	o.stampEllipse(o.ufo.x, o.ufo.y+0.9, 2.3, 0.45, orreryUFOOwner, 0.40, false)
 }
 
 func (o *Orrery) stampDisc(cx, cy, radius float64, owner uint8, brightness float64, trail bool) {
@@ -144,6 +66,33 @@ func (o *Orrery) stampDisc(cx, cy, radius float64, owner uint8, brightness float
 	}
 }
 
+func (o *Orrery) stampPlanetDisc(cx, cy, radius float64, owner uint8, brightness float64) {
+	minX := int(cx - radius - 1)
+	maxX := int(cx + radius + 1)
+	minY := int(cy - radius - 1)
+	maxY := int(cy + radius + 1)
+
+	softEdge := 0.28
+	for x := minX; x <= maxX; x++ {
+		for y := minY; y <= maxY; y++ {
+			dx := float64(x) - cx
+			dy := float64(y) - cy
+			dist := math.Sqrt(dx*dx + dy*dy)
+			if dist > radius {
+				continue
+			}
+
+			value := brightness
+			if dist > radius-softEdge {
+				edgeT := (radius - dist) / math.Max(softEdge, 0.01)
+				value = brightness * (0.55 + clamp64(edgeT, 0, 1)*0.45)
+			}
+
+			o.stampPixel(x, y, owner, value)
+		}
+	}
+}
+
 func (o *Orrery) stampRing(cx, cy, inner, outer float64, owner uint8, brightness float64) {
 	minX := int(cx - outer - 1)
 	maxX := int(cx + outer + 1)
@@ -153,7 +102,7 @@ func (o *Orrery) stampRing(cx, cy, inner, outer float64, owner uint8, brightness
 	for x := minX; x <= maxX; x++ {
 		for y := minY; y <= maxY; y++ {
 			dx := float64(x) - cx
-			dy := (float64(y) - cy) * 0.72
+			dy := float64(y) - cy
 			dist := math.Sqrt(dx*dx + dy*dy)
 			if dist < inner || dist > outer {
 				continue

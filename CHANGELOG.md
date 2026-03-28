@@ -11,7 +11,7 @@ drift uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- **orrery** scene — a stylized solar system with a fixed sun, eight planets, concentric orbit rings, and soft trails; configurable via `[scene.orrery]`: `bodies`, `trail_decay`
+- **orrery** scene — a stylized solar system with a fixed sun, eight planets, and concentric orbit rings; configurable via `[scene.orrery]`: `bodies`, `trail_decay`
 
 ---
 

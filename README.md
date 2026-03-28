@@ -96,9 +96,19 @@ drift ships nine animations. They cycle automatically or you can lock to one.
 
 </td>
 </tr>
-</table>
+<tr>
+<td width="50%">
 
-**orrery** — a stylized solar system with a fixed sun, coherent elliptical orbits, and faint braille orbital arcs
+**orrery** — a stylized solar system with a fixed sun, concentric orbit rings, and braille-rendered planets
+
+<img src="demo/orrery.gif" width="100%" />
+
+</td>
+<td width="50%">
+
+</td>
+</tr>
+</table>
 
 ## Themes
 
@@ -266,7 +276,7 @@ amplitude = 0.70
 speed     = 1.0
 
 [scene.orrery]
-bodies      = 8
+bodies      = 8    # clamped to at least 4 for readability
 trail_decay = 2.4
 
 [scene.pipes]

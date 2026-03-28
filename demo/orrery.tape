@@ -1,6 +1,6 @@
 Output demo/orrery.gif
 
-Set Shell "bash"
+Set Shell "zsh"
 Set FontSize 15
 Set Width 1400
 Set Height 800
@@ -8,10 +8,7 @@ Set Padding 20
 Set Theme "Catppuccin Mocha"
 
 Sleep 300ms
-Type "cd /home/vinz/Documents/code/drift"
-Enter
-Sleep 300ms
-Type "./drift --scene orrery --theme rosepine --duration 0"
+Type "drift --scene orrery --theme rosepine --duration 0"
 Enter
 Sleep 12s
 Enter

@@ -2,6 +2,8 @@ package scene
 
 import (
 	"testing"
+
+	"github.com/phlx0/drift/internal/config"
 )
 
 func TestThemesAllHavePalette(t *testing.T) {
@@ -71,5 +73,59 @@ func TestScenesInitDoNotPanic(t *testing.T) {
 			s.Update(0.033)
 			s.Resize(80, 24)
 		})
+	}
+}
+
+func TestOrreryBuildStarsHandlesNarrowTerminal(t *testing.T) {
+	o := NewOrrery(config.Default().Scene.Orrery)
+	o.Init(8, 12, Themes["cosmic"])
+
+	for _, star := range o.stars {
+		if star.x < 0 || star.x >= float64(o.pw) {
+			t.Fatalf("star x out of bounds for narrow terminal: %f not in [0,%d)", star.x, o.pw)
+		}
+		if star.y < 0 || star.y >= float64(o.ph) {
+			t.Fatalf("star y out of bounds for narrow terminal: %f not in [0,%d)", star.y, o.ph)
+		}
+	}
+}
+
+func TestOrreryResizePreservesActiveFlybys(t *testing.T) {
+	o := NewOrrery(config.Default().Scene.Orrery)
+	o.Init(120, 40, Themes["cosmic"])
+
+	o.asteroid = orreryAsteroid{
+		active: true,
+		x:      11.5,
+		y:      17.25,
+		vx:     3.5,
+		vy:     -2.25,
+		size:   1.2,
+	}
+	o.ufo = orreryUFO{
+		active:    true,
+		x:         73.0,
+		y:         21.0,
+		vx:        -5.0,
+		vy:        1.5,
+		targetX:   66.0,
+		targetY:   18.0,
+		hoverTime: 0.75,
+	}
+
+	o.Resize(100, 32)
+
+	if !o.asteroid.active {
+		t.Fatal("active asteroid was reset during resize")
+	}
+	if o.asteroid.x != 11.5 || o.asteroid.y != 17.25 || o.asteroid.vx != 3.5 || o.asteroid.vy != -2.25 {
+		t.Fatalf("asteroid state changed during resize: %+v", o.asteroid)
+	}
+
+	if !o.ufo.active {
+		t.Fatal("active UFO was reset during resize")
+	}
+	if o.ufo.x != 73.0 || o.ufo.y != 21.0 || o.ufo.targetX != 66.0 || o.ufo.targetY != 18.0 || o.ufo.hoverTime != 0.75 {
+		t.Fatalf("ufo state changed during resize: %+v", o.ufo)
 	}
 }

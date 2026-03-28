@@ -258,7 +258,7 @@ amplitude = 0.70
 speed     = 1.0
 
 [scene.orrery]
-bodies      = 8
+bodies      = 8    # clamped to at least 4 for readability
 trail_decay = 2.4
 
 [scene.pipes]
